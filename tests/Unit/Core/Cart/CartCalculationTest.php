@@ -36,7 +36,7 @@ use PrestaShop\PrestaShop\Tests\Unit\ContextMocker;
  * products are inserted in cart from data providers
  * cart rules are inserted from data providers
  */
-class CartRulesTest extends IntegrationTestCase
+class CartCalculationTest extends IntegrationTestCase
 {
 
     /**
@@ -131,6 +131,13 @@ class CartRulesTest extends IntegrationTestCase
         $this->contextMocker->resetContext();
     }
 
+    protected function compareCartTotal($expectedTotal){
+        $totalV1 = $this->cart->getOrderTotal();
+        $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV1, 'V1');
+        $totalV2 = $this->cart->getOrderTotalV2();
+        $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV2, 'V2');
+    }
+
     /**
      * @dataProvider cartWithoutCartRulesProvider
      */
@@ -138,10 +145,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -151,10 +155,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -164,10 +165,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -177,10 +175,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -190,10 +185,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -203,10 +195,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -216,10 +205,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -229,10 +215,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -242,10 +225,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     /**
@@ -255,10 +235,7 @@ class CartRulesTest extends IntegrationTestCase
     {
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
-
-        // test total
-        $total = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $total);
+        $this->compareCartTotal($expectedTotal);
     }
 
     public function cartWithoutCartRulesProvider()
@@ -266,12 +243,12 @@ class CartRulesTest extends IntegrationTestCase
         return [
             // WITHOUT CART RULES
 
-            'empty cart'                             => [
+ /*           'empty cart'                             => [
                 'products'      => [],
                 'expectedTotal' => 0,
                 'cartRules'     => [],
             ],
-            'one product in cart, quantity 1'        => [
+ */           'one product in cart, quantity 1'        => [
                 'products'      => [
                     1 => 1,
                 ],
