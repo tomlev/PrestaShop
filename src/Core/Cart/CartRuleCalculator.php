@@ -108,7 +108,7 @@ class CartRuleCalculator
         // Discount (%) on a specific product
         if ($cartRule->reduction_percent && $cartRule->reduction_product > 0) {
             foreach ($this->cartRows as $cartRow) {
-                if ($cartRow->getRowData()['product_id'] == $cartRule->reduction_product) {
+                if ($cartRow->getRowData()['id_product'] == $cartRule->reduction_product) {
                     $amount = $cartRow->subDiscountPercent($cartRule->reduction_percent);
                     $cartRuleData->addDiscountApplied($amount);
                 }
@@ -171,7 +171,7 @@ class CartRuleCalculator
                 // discount on single product
                 foreach ($this->cartRows as $cartRow) {
                     if ($cartRow->getRowData()['id_product'] == $cartRule->reduction_product) {
-                        $concernedRows[] = $cartRow;
+                        $concernedRows->add($cartRow);
                     }
                 }
             } elseif ($cartRule->reduction_product == 0) {

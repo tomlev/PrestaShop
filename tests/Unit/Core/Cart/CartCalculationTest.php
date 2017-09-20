@@ -133,9 +133,9 @@ class CartCalculationTest extends IntegrationTestCase
 
     protected function compareCartTotal($expectedTotal){
         $totalV1 = $this->cart->getOrderTotal();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV1, 'V1');
+        $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV1, 'V1 fail');
         $totalV2 = $this->cart->getOrderTotalV2();
-        $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV2, 'V2');
+        $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV2, 'V2 fail');
     }
 
     /**
@@ -243,12 +243,12 @@ class CartCalculationTest extends IntegrationTestCase
         return [
             // WITHOUT CART RULES
 
- /*           'empty cart'                             => [
+            'empty cart'                             => [
                 'products'      => [],
                 'expectedTotal' => 0,
                 'cartRules'     => [],
             ],
- */           'one product in cart, quantity 1'        => [
+            'one product in cart, quantity 1'        => [
                 'products'      => [
                     1 => 1,
                 ],
