@@ -68,6 +68,7 @@ class CartCalculationTest extends IntegrationTestCase
         1 => ['priceTaxIncl' => 19.812, 'taxRate' => 20],
         2 => ['priceTaxIncl' => 32.388, 'taxRate' => 20],
         3 => ['priceTaxIncl' => 31.188, 'taxRate' => 20],
+        4 => ['priceTaxIncl' => 35.567, 'taxRate' => 20, 'outOfStock' => true],
     ];
 
     protected $cartRuleFixtures = [
@@ -82,6 +83,8 @@ class CartCalculationTest extends IntegrationTestCase
         9  => ['priority' => 8, 'percent' => 0, 'amount' => 500, 'productRestrictionId' => 2],
         10 => ['priority' => 8, 'percent' => 50, 'amount' => 0, 'productRestrictionId' => 2],
         11 => ['priority' => 8, 'percent' => 10, 'amount' => 0, 'productRestrictionId' => 2],
+        12 => ['priority' => 8, 'percent' => 10, 'amount' => 0, 'productGiftId' => 3],
+        13 => ['priority' => 8, 'percent' => 10, 'amount' => 0, 'productGiftId' => 4],
     ];
 
     public function setUp()
@@ -237,6 +240,57 @@ class CartCalculationTest extends IntegrationTestCase
         $this->addProductsToCart($productDatas);
         $this->addCartRulesToCart($cartRuleDatas);
         $this->compareCartTotal($expectedTotal);
+    }
+
+    /**
+     * @dataProvider cartWithMultipleProductOutOfStockSpecificCartRulesMixedProvider
+     */
+    public function testCartWithMultipleProductOutOfStockSpecificCartRulesMixed(
+        $productDatas,
+        $expectedTotal,
+        $cartRuleDatas
+    ) {
+        $this->addProductsToCart($productDatas);
+        $this->addCartRulesToCart($cartRuleDatas);
+        $this->compareCartTotal($expectedTotal);
+    }
+
+    /**
+     * @dataProvider cartWithGiftProvider
+     */
+    public function testCartWithGift(
+        $productDatas,
+        $expectedTotal,
+        $cartRuleDatas,
+        $expectedProductCount
+    ) {
+        $this->addProductsToCart($productDatas);
+        $this->addCartRulesToCart($cartRuleDatas);
+        $this->compareCartTotal($expectedTotal);
+        $this->assertEquals($expectedProductCount, \Cart::getNbProducts($this->cart->id));
+    }
+
+    /**
+     * @dataProvider cartRuleValidityProvider
+     */
+    public function testCartRuleValidity(
+        $productDatas,
+        $cartRuleDatas,
+        $shouldRulesBeApplied,
+        $expectedProductCount,
+        $expectedProductCountAfterRules
+    ) {
+        $this->addProductsToCart($productDatas);
+        $this->assertEquals($expectedProductCount, \Cart::getNbProducts($this->cart->id));
+        $result = true;
+        foreach ($cartRuleDatas as $cartRuleId) {
+            $cartRule                = $this->getCartRuleFromFixtureId($cartRuleId);
+            $result                  = $result && $cartRule->checkValidity(\Context::getContext(), false, false);
+            $this->cartRulesInCart[] = $cartRule;
+            $this->cart->addCartRule($cartRule->id);
+        }
+        $this->assertEquals($shouldRulesBeApplied, $result);
+        $this->assertEquals($expectedProductCountAfterRules, \Cart::getNbProducts($this->cart->id));
     }
 
     public function cartWithoutCartRulesProvider()
@@ -648,6 +702,95 @@ class CartCalculationTest extends IntegrationTestCase
         ];
     }
 
+    public function cartWithMultipleProductOutOfStockSpecificCartRulesMixedProvider()
+    {
+        return [
+
+            'one product in cart, quantity 1, out of stock' => [
+                'products'      => [
+                    4 => 1,
+                ],
+                'expectedTotal' => 35.57,
+                'cartRules'     => [],
+            ],
+            '2 products in cart, one is out of stock'       => [
+                'products'      => [
+                    1 => 3,
+                    4 => 1,
+                ],
+                'expectedTotal' => 95.01,
+                'cartRules'     => [],
+            ],
+        ];
+    }
+
+    public function cartWithGiftProvider()
+    {
+        return [
+            '1 product in cart (out of stock), 1 cart rule give it as a gift, offering a gift (out of stock) and a global 10% discount' => [
+                'products'             => [
+                    4 => 1,
+                ],
+                'expectedTotal'        => 0,
+                'cartRules'            => [13],
+                'expectedProductCount' => 2,
+            ],
+            '2 products in cart, one cart rule offering a gift (out of stock) and a global 10% discount'                                => [
+                'products'             => [
+                    1 => 3,
+                    4 => 1,
+                ],
+                'expectedTotal'        => 53.496,
+                'cartRules'            => [13],
+                'expectedProductCount' => 5,
+            ],
+            '2 products in cart, one cart rule offering a gift (in stock) and a global 10% discount'                                    => [
+                'products'             => [
+                    3 => 3,
+                    4 => 1,
+                ],
+                'expectedTotal'        => 56.138,
+                'cartRules'            => [12],
+                'expectedProductCount' => 5,
+            ],
+        ];
+    }
+
+    public function cartRuleValidityProvider()
+    {
+        return [
+            'No product in cart should give a not valid cart rule insertion'                                               => [
+                'products'                       => [],
+                'cartRules'                      => [1],
+                'shouldRulesBeApplied'           => false,
+                'expectedProductCount'           => 0,
+                'expectedProductCountAfterRules' => 1,
+            ],
+            '1 product in cart, cart rules are inserted correctly'                                                         => [
+                'products'                       => [1 => 1],
+                'cartRules'                      => [1],
+                'shouldRulesBeApplied'           => true,
+                'expectedProductCount'           => 1,
+                'expectedProductCountAfterRules' => 1,
+            ],
+            '1 product in cart, cart rule giving gift, and global cart rule should be inserted without error'              => [
+                'products'                       => [4 => 1],
+                'cartRules'                      => [12, 1],
+                'shouldRulesBeApplied'           => true,
+                'expectedProductCount'           => 1,
+                'expectedProductCountAfterRules' => 2,
+            ],
+            // test PR #8361
+            '1 product in cart, cart rule giving gift out of stock, and global cart rule should be inserted without error' => [
+                'products'                       => [1 => 1],
+                'cartRules'                      => [13, 1],
+                'shouldRulesBeApplied'           => true,
+                'expectedProductCount'           => 1,
+                'expectedProductCountAfterRules' => 1,
+            ],
+        ];
+    }
+
     protected function resetCart()
     {
         $productDatas = $this->cart->getProducts(true);
@@ -664,10 +807,16 @@ class CartCalculationTest extends IntegrationTestCase
     {
         foreach ($this->productFixtures as $k => $productFixture) {
             $product           = new \Product;
-            $product->price    = $productFixture['priceTaxIncl'] / (1 + $productFixture['taxRate'] / 100);
+            $product->price    = round($productFixture['priceTaxIncl'] / (1 + $productFixture['taxRate'] / 100), 3);
             $product->tax_rate = $productFixture['taxRate'];
             $product->name     = 'product name';
+            if (!empty($productFixture['outOfStock'])) {
+                $product->out_of_stock = 0;
+            }
             $product->add();
+            if (!empty($productFixture['outOfStock'])) {
+                \StockAvailable::setProductOutOfStock((int) $product->id, 0);
+            }
             $this->products[$k] = $product;
         }
     }
@@ -729,6 +878,14 @@ class CartCalculationTest extends IntegrationTestCase
                 }
                 $cartRule->product_restriction = true;
                 $cartRule->reduction_product   = $product->id;
+            }
+            if (!empty($cartRuleData['productGiftId'])) {
+                $product = $this->getProductFromFixtureId($cartRuleData['productGiftId']);
+                if ($product === null) {
+                    // if product does not exist, skip this rule
+                    continue;
+                }
+                $cartRule->gift_product = $product->id;
             }
             $now = new \DateTime();
             // sub 1s to avoid bad comparisons with strictly greater than
