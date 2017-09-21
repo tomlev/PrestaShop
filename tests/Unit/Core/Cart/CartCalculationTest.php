@@ -131,7 +131,8 @@ class CartCalculationTest extends IntegrationTestCase
         $this->contextMocker->resetContext();
     }
 
-    protected function compareCartTotal($expectedTotal){
+    protected function compareCartTotal($expectedTotal)
+    {
         $totalV1 = $this->cart->getOrderTotal();
         $this->assertEquals(\Tools::convertPrice($expectedTotal), $totalV1, 'V1 fail');
         $totalV2 = $this->cart->getOrderTotalV2();
@@ -410,26 +411,26 @@ class CartCalculationTest extends IntegrationTestCase
     public function cartWithMultipleCartRulesAmountProvider()
     {
         return [
-            'empty cart'                                                    => [
+            'empty cart'                                                                            => [
                 'products'      => [],
                 'expectedTotal' => 0,
                 'cartRules'     => [4, 6],
             ],
-            'one product in cart, quantity 1, one 5€ global voucher'        => [
+            'one product in cart, quantity 1, one 5€ global voucher, one 10€ global voucher'        => [
                 'products'      => [
                     1 => 1,
                 ],
                 'expectedTotal' => 1.81,
                 'cartRules'     => [4, 6],
             ],
-            'one product in cart, quantity 3, one 5€ global voucher'        => [
+            'one product in cart, quantity 3, one 5€ global voucher, one 10€ global voucher'        => [
                 'products'      => [
                     1 => 3,
                 ],
                 'expectedTotal' => 41.44,
                 'cartRules'     => [4, 6],
             ],
-            '3 products in cart, several quantities, one 5€ global voucher' => [
+            '3 products in cart, several quantities, one 5€ global voucher, one 10€ global voucher' => [
                 'products'      => [
                     2 => 2, // 64.776
                     1 => 3, // 59.43
