@@ -45,7 +45,7 @@ class CurrencyController extends ApiController
             'data' => array(),
         );
 
-        foreach ($this->getCurrentLocale()->getCurrencyCollection()->getInstalledCurrencies() as $currency) {
+        foreach ($this->getCurrentLocale()->getCurrencyManager()->getInstalledCurrencies() as $currency) {
             $currencies['data'][] = $this->exposeCurrency($currency);
         }
 
@@ -64,7 +64,7 @@ class CurrencyController extends ApiController
             'data' => array(),
         );
 
-        foreach ($this->getCurrentLocale()->getCurrencyCollection()->getAvailableCurrencies() as $currency) {
+        foreach ($this->getCurrentLocale()->getCurrencyManager()->getAvailableCurrencies() as $currency) {
             $currencies['data'][] = $this->exposeCurrency($currency);
         }
 
@@ -82,7 +82,7 @@ class CurrencyController extends ApiController
 
         $currency = array(
             'data' => $this->exposeCurrency(
-                $this->getCurrentLocale()->getCurrencyCollection()->getCurrency($code)
+                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
             ),
         );
 
@@ -117,6 +117,7 @@ class CurrencyController extends ApiController
         $currencyData = array(
             'code'          => $currency->getIsoCode(),
             'numericCode'   => $currency->getNumericIsoCode(),
+            'symbol'        => $currency->getSymbol('default'),
             'decimals'      => $currency->getDecimalDigits(),
             'exchangeRate'  => 1.0,//$currency->getExchangeRate(),
             'localizations' => array(),
@@ -125,8 +126,8 @@ class CurrencyController extends ApiController
         /** @var \PrestaShopBundle\Localization\Locale $locale */
         foreach ($this->container->get('prestashop.cldr.locale.manager')->getInstalledLocales() as $locale) {
             $currencyData['localizations'][] = array(
-                'name'   => $currency->getName(\Context::getContext()->language->iso_code),
-                'symbol' => $currency->getSymbol($locale->getCurrencyPattern()),
+                'name'            => $currency->getName(\Context::getContext()->language->iso_code),
+                'currencyPattern' => $locale->getCurrencyPattern(),
             );
         }
 
