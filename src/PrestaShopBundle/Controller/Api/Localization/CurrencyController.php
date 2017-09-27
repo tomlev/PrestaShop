@@ -41,12 +41,17 @@ class CurrencyController extends ApiController
      */
     public function listInstalledCurrenciesAction(Request $request)
     {
-        $currencies = array(
-            'data' => array(),
-        );
+        $currencies = array();
+        /*
+                foreach ($this->getCurrentLocale()->getCurrencyManager()->getInstalledCurrencies() as $currency) {
+                    $currencies[] = $this->exposeCurrency($currency);
+                }
+        */
 
-        foreach ($this->getCurrentLocale()->getCurrencyManager()->getInstalledCurrencies() as $currency) {
-            $currencies['data'][] = $this->exposeCurrency($currency);
+        foreach (array('EUR', 'USD') as $code) {
+            $currencies[$code] = $this->exposeCurrency(
+                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
+            );
         }
 
         return $this->jsonResponse($currencies, $request);
@@ -60,12 +65,18 @@ class CurrencyController extends ApiController
     public function listAvailableCurrenciesAction(Request $request)
     {
 
-        $currencies = array(
-            'data' => array(),
-        );
+        $currencies = array();
 
+        /*
         foreach ($this->getCurrentLocale()->getCurrencyManager()->getAvailableCurrencies() as $currency) {
-            $currencies['data'][] = $this->exposeCurrency($currency);
+            $currencies[] = $this->exposeCurrency($currency);
+        }
+        */
+
+        foreach (array('EUR', 'USD', 'CHF') as $code) {
+            $currencies[$code] = $this->exposeCurrency(
+                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
+            );
         }
 
         return $this->jsonResponse($currencies, $request);
@@ -78,13 +89,32 @@ class CurrencyController extends ApiController
      */
     public function getCurrencyAction(Request $request)
     {
+        $id = $request->attributes->get('id');
+
+        /*
+        $currency =  $this->exposeCurrency(
+                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyById($id)
+        );
+        */
+        $currency = $this->exposeCurrency(
+                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode('EUR')
+        );
+
+        return $this->jsonResponse($currency, $request);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function getCurrencyAvailableAction(Request $request)
+    {
         $code = $request->attributes->get('code');
         $code = strtoupper($code);
 
-        $currency = array(
-            'data' => $this->exposeCurrency(
+        $currency = $this->exposeCurrency(
                 $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
-            ),
         );
 
         return $this->jsonResponse($currency, $request);
@@ -99,9 +129,6 @@ class CurrencyController extends ApiController
     {
         $symbol   = $request->request->getAlnum('symbol');
         $decimals = $request->request->getInt('code');
-        $currency = array(
-            'data' => $cldr->getAllCurrencies()->toArray(),
-        );
 
         return $this->jsonResponse($currency, $request);
     }
@@ -116,6 +143,8 @@ class CurrencyController extends ApiController
     protected function exposeCurrency(\PrestaShopBundle\Currency\Currency $currency)
     {
         $currencyData = array(
+            //'id'            => $currency->getId(),
+            'id'            => 2,
             'code'          => $currency->getIsoCode(),
             'numericCode'   => $currency->getNumericIsoCode(),
             'symbol'        => $currency->getSymbol('default'),
@@ -126,13 +155,27 @@ class CurrencyController extends ApiController
 
         /** @var \PrestaShopBundle\Localization\Locale $locale */
         /*
-foreach ($this->container->get('prestashop.cldr.locale.manager')->getInstalledLocales() as $locale) {
-        $currencyData['localizations'][$locale->getLocaleCode()] = array(
-            'name'            => $currency->getName(\Context::getContext()->language->iso_code),
-            'currencyPattern' => $locale->getCurrencyPattern(),
-        );
-    }
-    */
+        foreach ($this->container->get('prestashop.cldr.locale.manager')->getInstalledLocales() as $locale) {
+            $currencyData['localizations'][$locale->getLocaleCode()] = array(
+                'name'            => $currency->getName(\Context::getContext()->language->iso_code),
+                'currencyPattern' => $locale->getCurrencyPattern(),
+            );
+        }
+        */
+
+        foreach (array('en_US', 'fr_FR') as $code) {
+            $locale                                                  = $this->container->get(
+                'prestashop.cldr.locale.manager'
+            )->getLocaleByIsoCode($code);
+            $contextualCurrency                                      = $locale->getCurrencyManager()
+                                                                              ->getCurrencyByIsoCode(
+                                                                                  $currency->getIsoCode()
+                                                                              );
+            $currencyData['localizations'][$locale->getLocaleCode()] = array(
+                'name'            => $currency->getName('one'),
+                'currencyPattern' => $locale->getCurrencyPattern(),
+            );
+        }
 
         return $currencyData;
     }
