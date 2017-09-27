@@ -97,7 +97,7 @@ class CurrencyController extends ApiController
         );
         */
         $currency = $this->exposeCurrency(
-                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode('EUR')
+            $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode('EUR')
         );
 
         return $this->jsonResponse($currency, $request);
@@ -114,7 +114,7 @@ class CurrencyController extends ApiController
         $code = strtoupper($code);
 
         $currency = $this->exposeCurrency(
-                $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
+            $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
         );
 
         return $this->jsonResponse($currency, $request);
@@ -147,7 +147,6 @@ class CurrencyController extends ApiController
             'id'            => 2,
             'code'          => $currency->getIsoCode(),
             'numericCode'   => $currency->getNumericIsoCode(),
-            'symbol'        => $currency->getSymbol('default'),
             'decimals'      => $currency->getDecimalDigits(),
             'exchangeRate'  => 1.0,//$currency->getExchangeRate(),
             'localizations' => array(),
@@ -172,8 +171,9 @@ class CurrencyController extends ApiController
                                                                                   $currency->getIsoCode()
                                                                               );
             $currencyData['localizations'][$locale->getLocaleCode()] = array(
-                'name'            => $currency->getName('one'),
+                'name'            => $contextualCurrency->getName('one'),
                 'currencyPattern' => $locale->getCurrencyPattern(),
+                'symbol'          => $contextualCurrency->getSymbol('default'),
             );
         }
 
