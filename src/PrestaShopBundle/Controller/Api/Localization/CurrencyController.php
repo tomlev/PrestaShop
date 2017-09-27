@@ -146,6 +146,7 @@ class CurrencyController extends ApiController
             //'id'            => $currency->getId(),
             'id'            => 2,
             'code'          => $currency->getIsoCode(),
+            'name'          => $currency->getName('one'),
             'numericCode'   => $currency->getNumericIsoCode(),
             'decimals'      => $currency->getDecimalDigits(),
             'exchangeRate'  => 1.0,//$currency->getExchangeRate(),
