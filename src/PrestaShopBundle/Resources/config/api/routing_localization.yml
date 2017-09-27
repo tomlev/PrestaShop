@@ -1,0 +1,36 @@
+api_localization_currency_list:
+    path: /localization/currencies
+    methods: [GET]
+    defaults:
+        _controller: prestashop.core.api.localization.currency.controller:listInstalledCurrenciesAction
+
+api_localization_currency_get:
+    path: /localization/currencies/{code}
+    methods: [GET]
+    defaults:
+        _controller: prestashop.core.api.localization.currency.controller:getCurrencyAction
+    requirements:
+        code: [a-zA-Z0-9_-]
+
+api_localization_currency_available_list:
+    path: /localization/currencies/available
+    methods: [GET]
+    defaults:
+        _controller: prestashop.core.api.localization.currency.controller:listAvailableCurrenciesAction
+
+api_localization_currency_edit:
+    path: /localization/currencies/{code}
+    methods: [POST]
+    defaults:
+        _controller: prestashop.core.api.localization.currency.controller:editCurrencyAction
+    requirements:
+        code: [a-zA-Z0-9_-]
+
+
+
+api_localization_language_list:
+    path: /localization/languages/available
+    methods: [POST]
+    defaults:
+        _controller: prestashop.core.api.localization.language.controller:listLanguagesAction
+

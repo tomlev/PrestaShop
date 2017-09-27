@@ -388,6 +388,10 @@ services:
     prestashop.core.api.stock.movements_collection:
         class: PrestaShopBundle\Api\Stock\MovementsCollection
 
+    prestashop.core.api.query_localization_currency_params_collection:
+        parent: prestashop.core.api.query_params_collection
+        class: PrestaShopBundle\Api\Localization\QueryCurrencyParamsCollection
+
     # Api - Repositories
     prestashop.core.api.stock.repository:
         class: PrestaShopBundle\Entity\Repository\StockRepository
@@ -501,6 +505,18 @@ services:
         properties:
             translationService: "@prestashop.service.translation"
             queryParams: "@prestashop.core.api.query_translation_params_collection"
+
+    prestashop.core.api.localization.currency.controller:
+        class: PrestaShopBundle\Controller\Api\Localization\CurrencyController
+        parent: prestashop.core.api.controller
+        properties:
+            queryParams: "@prestashop.core.api.query_localization_currency_params_collection"
+
+    prestashop.core.api.localization.language.controller:
+        class: PrestaShopBundle\Controller\Api\Localization\LanguageController
+        parent: prestashop.core.api.controller
+        properties:
+            queryParams: "@prestashop.core.api.query_stock_params_collection"
 
     # Api - i18n
     prestashop.translation.api:
