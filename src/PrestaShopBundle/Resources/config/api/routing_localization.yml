@@ -10,7 +10,7 @@ api_localization_currency_get:
     defaults:
         _controller: prestashop.core.api.localization.currency.controller:getCurrencyAction
     requirements:
-        code: [a-zA-Z0-9_-]
+        code: "[a-zA-Z0-9_-]+"
 
 api_localization_currency_available_list:
     path: /localization/currencies/available
@@ -24,7 +24,7 @@ api_localization_currency_edit:
     defaults:
         _controller: prestashop.core.api.localization.currency.controller:editCurrencyAction
     requirements:
-        code: [a-zA-Z0-9_-]
+        code: "[a-zA-Z0-9_-]+"
 
 
 

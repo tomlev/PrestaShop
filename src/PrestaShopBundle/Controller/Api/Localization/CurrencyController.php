@@ -79,6 +79,7 @@ class CurrencyController extends ApiController
     public function getCurrencyAction(Request $request)
     {
         $code = $request->attributes->get('code');
+        $code = strtoupper($code);
 
         $currency = array(
             'data' => $this->exposeCurrency(
@@ -108,7 +109,7 @@ class CurrencyController extends ApiController
     protected function getCurrentLocale()
     {
         return $this->container->get('prestashop.cldr.locale.manager')->getLocaleByIsoCode(
-            \Context::getContext()->language->iso_code
+            \Context::getContext()->language->locale
         );
     }
 
@@ -124,12 +125,14 @@ class CurrencyController extends ApiController
         );
 
         /** @var \PrestaShopBundle\Localization\Locale $locale */
-        foreach ($this->container->get('prestashop.cldr.locale.manager')->getInstalledLocales() as $locale) {
-            $currencyData['localizations'][] = array(
-                'name'            => $currency->getName(\Context::getContext()->language->iso_code),
-                'currencyPattern' => $locale->getCurrencyPattern(),
-            );
-        }
+        /*
+foreach ($this->container->get('prestashop.cldr.locale.manager')->getInstalledLocales() as $locale) {
+        $currencyData['localizations'][$locale->getLocaleCode()] = array(
+            'name'            => $currency->getName(\Context::getContext()->language->iso_code),
+            'currencyPattern' => $locale->getCurrencyPattern(),
+        );
+    }
+    */
 
         return $currencyData;
     }
