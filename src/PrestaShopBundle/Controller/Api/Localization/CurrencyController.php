@@ -100,6 +100,14 @@ class CurrencyController extends ApiController
             $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode('EUR')
         );
 
+        /*
+        $serializer = $this->container->get('serializer');
+        $json = $serializer->serialize(
+            $currency,
+            'json',
+            array('groups' => array('group1'))
+        );
+        */
         return $this->jsonResponse($currency, $request);
     }
 
@@ -114,7 +122,7 @@ class CurrencyController extends ApiController
         $code = strtoupper($code);
 
         $currency = $this->exposeCurrency(
-            $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode($code)
+            $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode('EUR')
         );
 
         return $this->jsonResponse($currency, $request);
@@ -130,13 +138,17 @@ class CurrencyController extends ApiController
         $symbol   = $request->request->getAlnum('symbol');
         $decimals = $request->request->getInt('code');
 
+        $currency = $this->exposeCurrency(
+            $this->getCurrentLocale()->getCurrencyManager()->getCurrencyByIsoCode('EUR')
+        );
+
         return $this->jsonResponse($currency, $request);
     }
 
     protected function getCurrentLocale()
     {
         return $this->container->get('prestashop.cldr.locale.manager')->getLocaleByIsoCode(
-            \Context::getContext()->language->locale
+            $this->container->get('prestashop.adapter.legacy.context')->getLanguage()->locale
         );
     }
 
