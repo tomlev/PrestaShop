@@ -149,8 +149,13 @@ class CurrencyController extends ApiController
     protected function getCurrentLocale()
     {
         return $this->container->get('prestashop.cldr.locale.manager')->getLocaleByIsoCode(
-            $this->container->get('prestashop.adapter.legacy.context')->getLanguage()->locale
+            $this->getCurrentLocaleCode()
         );
+    }
+
+    protected function getCurrentLocaleCode()
+    {
+        return $this->container->get('prestashop.adapter.legacy.context')->getLanguage()->locale;
     }
 
     protected function exposeCurrency(\PrestaShopBundle\Currency\Currency $currency)
@@ -176,7 +181,7 @@ class CurrencyController extends ApiController
         }
         */
 
-        foreach (array('en_US', 'fr_FR') as $code) {
+        foreach (array('en-US', 'fr-FR') as $code) {
             $locale                                                  = $this->container->get(
                 'prestashop.cldr.locale.manager'
             )->getLocaleByIsoCode($code);
@@ -189,6 +194,7 @@ class CurrencyController extends ApiController
                 'name'            => $contextualCurrency->getName('one'),
                 'currencyPattern' => $locale->getCurrencyPattern(),
                 'symbol'          => $contextualCurrency->getSymbol('default'),
+                'isCurrent'       => $locale->getLocaleCode() == $this->getCurrentLocaleCode(),
             );
         }
 
