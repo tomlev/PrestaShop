@@ -108,6 +108,7 @@ class CurrencyController extends ApiController
             array('groups' => array('group1'))
         );
         */
+
         return $this->jsonResponse($currency, $request);
     }
 
@@ -184,6 +185,7 @@ class CurrencyController extends ApiController
                                                                                   $currency->getIsoCode()
                                                                               );
             $currencyData['localizations'][$locale->getLocaleCode()] = array(
+                'lang'            => 'en', // @todo set lang here (en, fr...)
                 'name'            => $contextualCurrency->getName('one'),
                 'currencyPattern' => $locale->getCurrencyPattern(),
                 'symbol'          => $contextualCurrency->getSymbol('default'),
