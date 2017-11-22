@@ -295,7 +295,7 @@ var formCategory = (function() {
               '<input type="checkbox" name="form[step1][categories][tree][]" checked value="'+response.category.id+'">' +
                 response.category.name[1] +
             '</label>' +
-            '<div class="radio pull-right">' +
+            '<div class="radio float-right">' +
               '<input type="radio" value="'+response.category.id+'" name="ignore" class="default-category">' +
             '</div>' +
           '</div>' +
